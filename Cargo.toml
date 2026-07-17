@@ -1,0 +1,36 @@
+[package]
+name = "hashcheck"
+version = "0.1.0"
+edition = "2021"
+description = "Checksum toolkit CLI — compute, verify, and manage file hashes (SHA-256, SHA-512, SHA-1, MD5, BLAKE2b)"
+license = "MIT"
+repository = "https://github.com/EdgarOrtegaRamirez/hashcheck"
+keywords = ["checksum", "hash", "sha256", "security", "cli"]
+categories = ["command-line-utilities", "cryptography"]
+
+[[bin]]
+name = "hashcheck"
+path = "src/main.rs"
+
+[dependencies]
+clap = { version = "4.6", features = ["derive"] }
+sha2 = "0.10"
+sha1 = "0.10"
+md-5 = "0.10"
+blake2 = "0.10"
+anyhow = "1.0"
+walkdir = "2.5"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+colored = "3.0"
+hex = "0.4"
+csv = "1.4"
+
+[dev-dependencies]
+assert_cmd = "2.0"
+predicates = "3.0"
+tempfile = "3.27"
+
+[profile.release]
+opt-level = 3
+lto = true
