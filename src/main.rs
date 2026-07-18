@@ -1,3 +1,6 @@
+#![allow(clippy::type_complexity)]
+#![allow(clippy::ptr_arg)]
+
 mod algorithm;
 mod cli;
 mod hasher;

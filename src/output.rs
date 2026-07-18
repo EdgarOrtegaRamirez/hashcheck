@@ -1,5 +1,3 @@
-
-
 pub struct CsvWriter {
     out: Vec<String>,
 }

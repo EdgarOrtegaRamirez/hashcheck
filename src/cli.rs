@@ -11,7 +11,10 @@ use std::path::PathBuf;
 
 #[derive(Parser)]
 #[command(name = "hashcheck")]
-#[command(version, about = "Checksum toolkit CLI - compute, verify, and manage file hashes")]
+#[command(
+    version,
+    about = "Checksum toolkit CLI - compute, verify, and manage file hashes"
+)]
 struct Cli {
     #[command(subcommand)]
     command: Command,
@@ -115,27 +118,19 @@ fn cmd_dir(
 ) -> anyhow::Result<()> {
     let mut entries: Vec<PathBuf> = Vec::new();
 
-    for entry in walkdir::WalkDir::new(dir)
+    for e in walkdir::WalkDir::new(dir)
         .follow_links(true)
         .into_iter()
         .filter_entry(|e| !is_hidden_path(e.path()) || dotfiles)
+        .flatten()
     {
-        match entry {
-            Ok(e) => {
-                if e.file_type().is_file() {
-                    entries.push(e.path().to_path_buf());
-                }
-            }
-            Err(_) => {}
+        if e.file_type().is_file() {
+            entries.push(e.path().to_path_buf());
         }
     }
 
     if !recursive {
-        entries.retain(|p| {
-            p.parent()
-                .map(|parent| parent == dir)
-                .unwrap_or(false)
-        });
+        entries.retain(|p| p.parent().map(|parent| parent == dir).unwrap_or(false));
     }
 
     let mut results: Vec<(PathBuf, String)> = Vec::new();
@@ -179,27 +174,19 @@ fn cmd_genfile(
 ) -> anyhow::Result<()> {
     let mut entries: Vec<PathBuf> = Vec::new();
 
-    for entry in walkdir::WalkDir::new(dir)
+    for e in walkdir::WalkDir::new(dir)
         .follow_links(true)
         .into_iter()
         .filter_entry(|e| !is_hidden_path(e.path()) || dotfiles)
+        .flatten()
     {
-        match entry {
-            Ok(e) => {
-                if e.file_type().is_file() {
-                    entries.push(e.path().to_path_buf());
-                }
-            }
-            Err(_) => {}
+        if e.file_type().is_file() {
+            entries.push(e.path().to_path_buf());
         }
     }
 
     if !recursive {
-        entries.retain(|p| {
-            p.parent()
-                .map(|parent| parent == dir)
-                .unwrap_or(false)
-        });
+        entries.retain(|p| p.parent().map(|parent| parent == dir).unwrap_or(false));
     }
 
     let mut lines: Vec<String> = Vec::new();
@@ -263,12 +250,7 @@ fn is_hidden_path(path: &std::path::Path) -> bool {
         .unwrap_or(false)
 }
 
-fn print_single_output(
-    algo: &Algorithm,
-    file: Option<PathBuf>,
-    hash: &str,
-    format: OutputFormat,
-) {
+fn print_single_output(algo: &Algorithm, file: Option<PathBuf>, hash: &str, format: OutputFormat) {
     match format {
         OutputFormat::Text => {
             if let Some(f) = file {
@@ -283,9 +265,15 @@ fn print_single_output(
                 "algorithm".to_string(),
                 serde_json::Value::String(algo.to_string()),
             );
-            map.insert("hash".to_string(), serde_json::Value::String(hash.to_string()));
+            map.insert(
+                "hash".to_string(),
+                serde_json::Value::String(hash.to_string()),
+            );
             if let Some(f) = file {
-                map.insert("file".to_string(), serde_json::Value::String(f.display().to_string()));
+                map.insert(
+                    "file".to_string(),
+                    serde_json::Value::String(f.display().to_string()),
+                );
             }
             let output = serde_json::Value::Object(map);
             println!("{}", serde_json::to_string_pretty(&output).unwrap());
@@ -343,10 +331,7 @@ fn print_dir_output(results: &[(PathBuf, String)], algo: &Algorithm, format: Out
     }
 }
 
-fn print_verify_output(
-    results: &[(PathBuf, String, bool)],
-    errors: &[(PathBuf, String)],
-) {
+fn print_verify_output(results: &[(PathBuf, String, bool)], errors: &[(PathBuf, String)]) {
     let mut all_pass = true;
     for (file, hash, ok) in results {
         if *ok {
@@ -354,11 +339,10 @@ fn print_verify_output(
         } else {
             all_pass = false;
             println!(
-                "{}: {} (expected {}, got {})",
+                "{}: {} (expected {}, got modified)",
                 file.display(),
                 "FAILED".red(),
-                hash,
-                "modified"
+                hash
             );
         }
     }

@@ -34,7 +34,9 @@ pub fn verify_checksum_file(
         // Trim leading whitespace from filename part and handle binary mode indicator (*)
         let filename_part = parts[1].trim_start();
         let has_star = filename_part.starts_with('*');
-        let filename = filename_part[if has_star { 1 } else { 0 }..].trim_end().to_string();
+        let filename = filename_part[if has_star { 1 } else { 0 }..]
+            .trim_end()
+            .to_string();
 
         let filepath = if let Some(ref base_path) = base {
             base_path.join(&filename)
@@ -53,7 +55,10 @@ pub fn verify_checksum_file(
             64 => crate::hasher::hash_file(&filepath, Algorithm::Sha256),
             128 => crate::hasher::hash_file(&filepath, Algorithm::Blake2b),
             _ => {
-                errors.push((filepath.clone(), format!("unknown hash length: {}", expected_hash.len())));
+                errors.push((
+                    filepath.clone(),
+                    format!("unknown hash length: {}", expected_hash.len()),
+                ));
                 continue;
             }
         };

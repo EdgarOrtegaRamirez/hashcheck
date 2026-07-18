@@ -22,7 +22,12 @@ fn test_hash_file() {
 
 #[test]
 fn test_hash_stdin() {
-    let cmd = test_bin().arg("hash").arg("-").write_stdin("hello world").assert().success();
+    let cmd = test_bin()
+        .arg("hash")
+        .arg("-")
+        .write_stdin("hello world")
+        .assert()
+        .success();
     let output = cmd.get_output();
     let stdout = String::from_utf8_lossy(&output.stdout);
     assert!(stdout.contains("b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9"));
@@ -219,9 +224,16 @@ fn test_verify_modified_file() {
     fs::write(&f1, "original").unwrap();
 
     // Generate checksums
-    let _cmd = test_bin().arg("genfile").arg(tmpdir.path()).output().unwrap();
+    let _cmd = test_bin()
+        .arg("genfile")
+        .arg(tmpdir.path())
+        .output()
+        .unwrap();
 
-    let checksum_content = format!("{}  a.txt\n", "b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9");
+    let checksum_content = format!(
+        "{}  a.txt\n",
+        "b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9"
+    );
     let checksum_path = tmpdir.path().join("checksums.txt");
     fs::write(&checksum_path, checksum_content).unwrap();
 
